@@ -46,3 +46,7 @@ def get_network_name(net_id):
 			return json.dumps({
 				'data': network['name']
 			})
+
+
+if __name__ == '__main__':
+	app.run(port=PORT)
