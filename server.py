@@ -1,6 +1,7 @@
 import sys
 import json
 from flask import Flask
+from flask import jsonify
 
 # Receives the input entries
 PORT = sys.argv[1]
@@ -20,9 +21,7 @@ with open(NETIXLANFILE) as f:
 # Creates the endpoints
 @app.route("/api/ix")
 def get_all_IXPs_objects():
-	return json.dumps({
-		'data': ixfile_data['data']
-	})
+	return jsonify(data = ixfile_data['data'])
 
 
 @app.route("/api/ixnets/<ix_id>")
@@ -31,21 +30,16 @@ def get_IXP_networks_ids(ix_id):
 	
 	for network in netixlanfile_data['data']:
 		if network['ix_id'] == int(ix_id):
-			print network
-			ids.append(network['id'])
+			ids.append(network['net_id'])
 	
-	return json.dumps({
-		'data': ids
-	})
+	return jsonify(data = ids)
 
 
 @app.route("/api/netname/<net_id>")
 def get_network_name(net_id):
 	for network in netfile_data['data']:
 		if network['id'] == int(net_id):
-			return json.dumps({
-				'data': network['name']
-			})
+			return jsonify(data = network['name'])
 
 
 if __name__ == '__main__':
