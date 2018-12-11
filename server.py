@@ -1,6 +1,5 @@
 import sys
 import json
-# from pprint import pprint
 from flask import Flask
 
 # Receives the input entries
@@ -31,7 +30,8 @@ def get_IXP_networks_ids(ix_id):
 	ids = []
 	
 	for network in netixlanfile_data['data']:
-		if network['ix_id'] == ix_id:
+		if network['ix_id'] == int(ix_id):
+			print network
 			ids.append(network['id'])
 	
 	return json.dumps({
@@ -39,10 +39,10 @@ def get_IXP_networks_ids(ix_id):
 	})
 
 
-@app.route("api/netname/<net_id>")
+@app.route("/api/netname/<net_id>")
 def get_network_name(net_id):
 	for network in netfile_data['data']:
-		if network['id'] == net_id:
+		if network['id'] == int(net_id):
 			return json.dumps({
 				'data': network['name']
 			})

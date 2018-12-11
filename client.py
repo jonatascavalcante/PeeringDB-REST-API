@@ -3,43 +3,57 @@ import json
 import socket
 
 # Receives the input entries
-IP = sys.argv[1]
-PORT = sys.argv[2]
-OPT = sys.argv[3]
+ADDR = sys.argv[1]
+SERVER_IP = ADDR.split(':')[0]
+PORT = ADDR.split(':')[1]
+OPT = sys.argv[2]
 
-BIND = (IP, PORT)
 
-server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind(BIND)
+def make_request(endpoint):
+	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server_address = (SERVER_IP, int(PORT))
+	client_socket.connect(server_address)
+
+	request = 'GET ' + endpoint + ' HTTP/1.1\r\nHost: ' + SERVER_IP + ':' + PORT+ '\r\nContent-Type: application/json'
+	client_socket.send(request)
+	response = ''
+	while True:
+		recv = client_socket.recv(1024)
+		print recv
+		if not recv:
+			break
+		response += recv
+	
+	client_socket.close()
+	return response
 
 
 def ixps_by_network():
-	ixps = localhost:8080/api/ix
-	# pegar o 'data' da requisicao
-	for ixp in ixps:
-		nets = localhost:8080/api/ixnets/ixp['id']
-		# pegar o 'data' da requisicao
-		for net in nets:
+	all_nets = {}
+	ixps = make_request('/api/ix')
+
+	for ixp in ixps['data']:
+		nets = make_request('/api/ixnets/' + ixp['id'])
+		for net in nets['data']:
 			if net in all_nets:
 				all_nets[net] += 1
-			else
+			else:
 				all_nets[net] = 1
 
 	for key, qtd in all_nets.iteritems():
-		netname = localhost:8080/api/netname/key
-		print key + '\t' + netname + '\t' + qtd + '\n'
+		netname = make_request('/api/ix/netname/' + key)
+		print key + '\t' + netname['data'] + '\t' + qtd + '\n'
 
 
 def networks_by_ixp():
-	ixps = localhost:8080/api/ix
+	ixps = make_request('/api/ix')
 
-	for ixp in ixps:
-		nets = localhost:8080/api/ixnets/ixp['id']
-		print ixp['id'] + '\t' + ixp['name'] + len(nets) + '\n'
+	for ixp in ixps['data']:
+		nets = make_request('/api/ixnets/' + ixp['id'])
+		print ixp['id'] + '\t' + ixp['name'] + len(nets['data']) + '\n'
 
 
-if(OPT == 0):
+if(int(OPT) == 0):
 	ixps_by_network()
-else if(OPT == 1):
+elif(int(OPT) == 1):
 	networks_by_ixp()
